@@ -29,7 +29,7 @@ jobs:
 
       - name: Attach LÖVE game immediately
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
           set -euxo pipefail
@@ -42,13 +42,14 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-          cache: gradle
 
       - name: Install Android build requirements
         shell: bash
         run: |
           set -euxo pipefail
-          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" \
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
+          "$SDKMANAGER" \
             'platforms;android-34' \
             'build-tools;34.0.0' \
             'ndk;25.2.9519653'
@@ -112,7 +113,7 @@ jobs:
 
       - name: Attach Android APK
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
           set -euxo pipefail
