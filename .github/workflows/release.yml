@@ -1,0 +1,121 @@
+name: Build release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out released game
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
+
+      - name: Package LÖVE game
+        shell: bash
+        run: |
+          set -euxo pipefail
+          TAG_NAME='${{ github.event.release.tag_name }}'
+          SAFE_TAG="${TAG_NAME//\//-}"
+          mkdir -p dist
+          zip -9 -r "dist/game-${SAFE_TAG}.love" . \
+            -x '.git/*' '.github/*' 'dist/*' '.gitignore' 'README.md'
+
+      - name: Attach LÖVE game immediately
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euxo pipefail
+          TAG_NAME='${{ github.event.release.tag_name }}'
+          SAFE_TAG="${TAG_NAME//\//-}"
+          gh release upload "$TAG_NAME" "dist/game-${SAFE_TAG}.love" --clobber
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Install Android build requirements
+        shell: bash
+        run: |
+          set -euxo pipefail
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" \
+            'platforms;android-34' \
+            'build-tools;34.0.0' \
+            'ndk;25.2.9519653'
+
+      - name: Get LÖVE Android 11.5 hotfix
+        shell: bash
+        run: |
+          set -euxo pipefail
+          git clone \
+            --branch 11.5a \
+            --depth 1 \
+            --recurse-submodules \
+            --shallow-submodules \
+            https://github.com/love2d/love-android.git \
+            android-build
+
+      - name: Embed game
+        shell: bash
+        run: |
+          set -euxo pipefail
+          TAG_NAME='${{ github.event.release.tag_name }}'
+          SAFE_TAG="${TAG_NAME//\//-}"
+
+          mkdir -p android-build/app/src/embed/assets
+          cp "dist/game-${SAFE_TAG}.love" android-build/app/src/embed/assets/game.love
+
+          cd android-build
+          sed -i '/^app.name_byte_array=/d' gradle.properties
+          sed -i 's/^#app.name=.*/app.name=Game/' gradle.properties
+          sed -i 's/^app.application_id=.*/app.application_id=org.isomorphisms.game.dev/' gradle.properties
+          sed -i 's/^app.orientation=.*/app.orientation=landscape/' gradle.properties
+          sed -i "s/^app.version_code=.*/app.version_code=${GITHUB_RUN_NUMBER}/" gradle.properties
+          sed -i "s/^app.version_name=.*/app.version_name=${TAG_NAME}/" gradle.properties
+
+      - name: Build Android APK
+        shell: bash
+        run: |
+          set -euxo pipefail
+          cd android-build
+          ./gradlew assembleEmbedNoRecordRelease
+
+      - name: Sign Android APK
+        shell: bash
+        run: |
+          set -euxo pipefail
+          TAG_NAME='${{ github.event.release.tag_name }}'
+          SAFE_TAG="${TAG_NAME//\//-}"
+          BUILD_TOOLS="$ANDROID_HOME/build-tools/34.0.0"
+          UNSIGNED='android-build/app/build/outputs/apk/embedNoRecord/release/app-embed-noRecord-release-unsigned.apk'
+
+          base64 --decode .github/android-dev.keystore.b64 > /tmp/game-dev.keystore
+          "$BUILD_TOOLS/zipalign" -p -f 4 "$UNSIGNED" /tmp/game-aligned.apk
+          "$BUILD_TOOLS/apksigner" sign \
+            --ks /tmp/game-dev.keystore \
+            --ks-key-alias game \
+            --ks-pass pass:game-release-dev \
+            --key-pass pass:game-release-dev \
+            --out "dist/game-${SAFE_TAG}.apk" \
+            /tmp/game-aligned.apk
+          "$BUILD_TOOLS/apksigner" verify "dist/game-${SAFE_TAG}.apk"
+
+      - name: Attach Android APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euxo pipefail
+          TAG_NAME='${{ github.event.release.tag_name }}'
+          SAFE_TAG="${TAG_NAME//\//-}"
+          gh release upload "$TAG_NAME" "dist/game-${SAFE_TAG}.apk" --clobber
