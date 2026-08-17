@@ -8,7 +8,7 @@ permissions:
   contents: write
 
 jobs:
-  release:
+  android:
     runs-on: ubuntu-latest
 
     steps:
@@ -17,99 +17,75 @@ jobs:
         with:
           ref: ${{ github.event.release.tag_name }}
 
-      - name: Package LÖVE game
-        shell: bash
-        run: |
-          set -euxo pipefail
-          TAG_NAME='${{ github.event.release.tag_name }}'
-          SAFE_TAG="${TAG_NAME//\//-}"
-          mkdir -p dist
-          zip -9 -r "dist/game-${SAFE_TAG}.love" . \
-            -x '.git/*' '.github/*' 'dist/*' '.gitignore' 'README.md'
-
-      - name: Attach LÖVE game immediately
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        shell: bash
-        run: |
-          set -euxo pipefail
-          TAG_NAME='${{ github.event.release.tag_name }}'
-          SAFE_TAG="${TAG_NAME//\//-}"
-          gh release upload "$TAG_NAME" "dist/game-${SAFE_TAG}.love" --clobber
-
       - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
-      - name: Install Android build requirements
+      - name: Install Android requirements
         shell: bash
         run: |
           set -euxo pipefail
           SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
           yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
           "$SDKMANAGER" \
-            'platforms;android-34' \
-            'build-tools;34.0.0' \
-            'ndk;25.2.9519653'
+            'platform-tools' \
+            'build-tools;35.0.1' \
+            'platforms;android-35' \
+            'cmake;3.10.2.4988404' \
+            'ndk;28.1.13356709'
 
-      - name: Get LÖVE Android 11.5 hotfix
+      - name: Install Godot 4.7.1 and export templates
         shell: bash
         run: |
           set -euxo pipefail
-          git clone \
-            --branch 11.5a \
-            --depth 1 \
-            --recurse-submodules \
-            --shallow-submodules \
-            https://github.com/love2d/love-android.git \
-            android-build
+          VERSION=4.7.1
+          RELEASE="${VERSION}-stable"
+          curl -fL -o /tmp/godot.zip \
+            "https://github.com/godotengine/godot/releases/download/${RELEASE}/Godot_v${RELEASE}_linux.x86_64.zip"
+          curl -fL -o /tmp/templates.tpz \
+            "https://github.com/godotengine/godot/releases/download/${RELEASE}/Godot_v${RELEASE}_export_templates.tpz"
+          unzip -q /tmp/godot.zip -d /tmp/godot
+          install -m 0755 "/tmp/godot/Godot_v${RELEASE}_linux.x86_64" /usr/local/bin/godot
+          mkdir -p "$HOME/.local/share/godot/export_templates/${VERSION}.stable"
+          unzip -q /tmp/templates.tpz -d /tmp/templates
+          cp -R /tmp/templates/templates/. "$HOME/.local/share/godot/export_templates/${VERSION}.stable/"
+          godot --version
 
-      - name: Embed game
+      - name: Configure Godot Android paths
         shell: bash
         run: |
           set -euxo pipefail
-          TAG_NAME='${{ github.event.release.tag_name }}'
-          SAFE_TAG="${TAG_NAME//\//-}"
+          mkdir -p "$HOME/.config/godot"
+          cat > "$HOME/.config/godot/editor_settings-4.7.tres" <<SETTINGS
+          [gd_resource type="EditorSettings" format=3]
 
-          mkdir -p android-build/app/src/embed/assets
-          cp "dist/game-${SAFE_TAG}.love" android-build/app/src/embed/assets/game.love
+          [resource]
+          export/android/android_sdk_path = "$ANDROID_HOME"
+          export/android/java_sdk_path = "$JAVA_HOME"
+          SETTINGS
 
-          cd android-build
-          sed -i '/^app.name_byte_array=/d' gradle.properties
-          sed -i 's/^#app.name=.*/app.name=Game/' gradle.properties
-          sed -i 's/^app.application_id=.*/app.application_id=org.isomorphisms.game.dev/' gradle.properties
-          sed -i 's/^app.orientation=.*/app.orientation=landscape/' gradle.properties
-          sed -i "s/^app.version_code=.*/app.version_code=${GITHUB_RUN_NUMBER}/" gradle.properties
-          sed -i "s/^app.version_name=.*/app.version_name=${TAG_NAME}/" gradle.properties
-
-      - name: Build Android APK
+      - name: Restore development signing key
         shell: bash
         run: |
           set -euxo pipefail
-          cd android-build
-          ./gradlew assembleEmbedNoRecordRelease
-
-      - name: Sign Android APK
-        shell: bash
-        run: |
-          set -euxo pipefail
-          TAG_NAME='${{ github.event.release.tag_name }}'
-          SAFE_TAG="${TAG_NAME//\//-}"
-          BUILD_TOOLS="$ANDROID_HOME/build-tools/34.0.0"
-          UNSIGNED='android-build/app/build/outputs/apk/embedNoRecord/release/app-embed-noRecord-release-unsigned.apk'
-
           base64 --decode .github/android-dev.keystore.b64 > /tmp/game-dev.keystore
-          "$BUILD_TOOLS/zipalign" -p -f 4 "$UNSIGNED" /tmp/game-aligned.apk
-          "$BUILD_TOOLS/apksigner" sign \
-            --ks /tmp/game-dev.keystore \
-            --ks-key-alias game \
-            --ks-pass pass:game-release-dev \
-            --key-pass pass:game-release-dev \
-            --out "dist/game-${SAFE_TAG}.apk" \
-            /tmp/game-aligned.apk
-          "$BUILD_TOOLS/apksigner" verify "dist/game-${SAFE_TAG}.apk"
+
+      - name: Export Android APK
+        env:
+          GODOT_ANDROID_KEYSTORE_RELEASE_PATH: /tmp/game-dev.keystore
+          GODOT_ANDROID_KEYSTORE_RELEASE_USER: game
+          GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD: game-release-dev
+        shell: bash
+        run: |
+          set -euxo pipefail
+          TAG_NAME='${{ github.event.release.tag_name }}'
+          SAFE_TAG="${TAG_NAME//\//-}"
+          sed -i "s|^version/code=.*|version/code=${GITHUB_RUN_NUMBER}|" export_presets.cfg
+          sed -i "s|^version/name=.*|version/name=\"${TAG_NAME}\"|" export_presets.cfg
+          mkdir -p dist
+          godot --headless --path . --export-release Android "dist/dress-the-unicorn-${SAFE_TAG}.apk"
 
       - name: Attach Android APK
         env:
@@ -119,4 +95,4 @@ jobs:
           set -euxo pipefail
           TAG_NAME='${{ github.event.release.tag_name }}'
           SAFE_TAG="${TAG_NAME//\//-}"
-          gh release upload "$TAG_NAME" "dist/game-${SAFE_TAG}.apk" --clobber
+          gh release upload "$TAG_NAME" "dist/dress-the-unicorn-${SAFE_TAG}.apk" --clobber

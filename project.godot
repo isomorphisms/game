@@ -1,0 +1,28 @@
+; Engine configuration file.
+; Godot 4.7 project for Dress the Unicorn.
+
+config_version=5
+
+[application]
+config/name="Dress the Unicorn"
+run/main_scene="res://scenes/main.tscn"
+config/features=PackedStringArray("4.7", "GL Compatibility")
+
+[display]
+
+[display/window]
+size/viewport_width=1280
+size/viewport_height=720
+size/window_width_override=1280
+size/window_height_override=720
+stretch/mode="canvas_items"
+handheld/orientation=0
+
+[rendering]
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+
+[input_devices]
+
+[input_devices/pointing]
+emulate_touch_from_mouse=true

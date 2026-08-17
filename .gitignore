@@ -1,9 +1,12 @@
-# LÖVE packages
-*.love
+# Godot generated files
+.godot/
 
 # Packaged builds
 build/
 dist/
+*.apk
+*.aab
+*.pck
 *.zip
 
 # OS/editor noise
