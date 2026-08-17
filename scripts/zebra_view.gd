@@ -52,34 +52,34 @@ func _finish_blink() -> void:
 
 func _draw() -> void:
     var base_size := Vector2(640.0, 300.0)
-    var scale_factor := min(max(size.x, 1.0) / base_size.x, max(size.y, 1.0) / base_size.y)
+    var width_scale: float = size.x / base_size.x
+    var height_scale: float = size.y / base_size.y
+    var scale_factor: float = width_scale
+    if height_scale < scale_factor:
+        scale_factor = height_scale
+    if scale_factor <= 0.0:
+        scale_factor = 1.0
     var offset := Vector2((size.x - base_size.x * scale_factor) * 0.5, (size.y - base_size.y * scale_factor) * 0.5)
     draw_set_transform(offset, 0.0, Vector2(scale_factor, scale_factor))
 
-    # Soft salon floor shadow.
     _ellipse(Vector2(325, 268), Vector2(215, 18), Color("e7cddd"))
 
-    # Wings sit behind the zebra body.
     if wearing_wings:
         _ellipse(Vector2(255, 120), Vector2(92, 48), Color("e8dcff"))
         _ellipse(Vector2(360, 112), Vector2(96, 52), Color("d8ecff"))
         draw_line(Vector2(210, 120), Vector2(292, 92), Color("9c86bf"), 4.0, true)
         draw_line(Vector2(332, 104), Vector2(410, 80), Color("8aa6c0"), 4.0, true)
 
-    # Tail.
     draw_line(Vector2(162, 174), Vector2(102, 134), Color("161616"), 9.0, true)
     draw_line(Vector2(103, 134), Vector2(83, 126), Color("161616"), 15.0, true)
 
-    # Legs.
     for x in [215.0, 285.0, 365.0, 425.0]:
         draw_rect(Rect2(x, 198, 25, 69), Color("f7f5f2"), true)
         draw_rect(Rect2(x, 246, 25, 21), Color("1d1d1d"), true)
 
-    # Body and neck.
     _ellipse(Vector2(320, 166), Vector2(165, 76), Color("f7f5f2"))
     _ellipse(Vector2(445, 138), Vector2(56, 83), Color("f7f5f2"))
 
-    # Body stripes.
     for stripe in [
         [Vector2(195, 124), Vector2(236, 195)],
         [Vector2(232, 101), Vector2(267, 212)],
@@ -90,25 +90,20 @@ func _draw() -> void:
     ]:
         draw_line(stripe[0], stripe[1], Color("1b1b1b"), 13.0, true)
 
-    # Neck stripes.
     draw_line(Vector2(421, 88), Vector2(469, 165), Color("1b1b1b"), 11.0, true)
     draw_line(Vector2(438, 74), Vector2(483, 137), Color("1b1b1b"), 10.0, true)
 
-    # Head and muzzle.
     _ellipse(Vector2(500, 91), Vector2(69, 53), Color("f7f5f2"))
     _ellipse(Vector2(549, 112), Vector2(46, 29), Color("d9d1cd"))
 
-    # Ears and mane.
     draw_colored_polygon(PackedVector2Array([Vector2(467, 51), Vector2(454, 10), Vector2(491, 42)]), Color("1b1b1b"))
     draw_colored_polygon(PackedVector2Array([Vector2(520, 47), Vector2(542, 12), Vector2(545, 55)]), Color("1b1b1b"))
     draw_line(Vector2(447, 62), Vector2(430, 129), Color("1b1b1b"), 17.0, true)
 
-    # Face stripes.
     draw_line(Vector2(474, 51), Vector2(493, 81), Color("1b1b1b"), 8.0, true)
     draw_line(Vector2(510, 43), Vector2(519, 76), Color("1b1b1b"), 8.0, true)
     draw_line(Vector2(541, 73), Vector2(557, 93), Color("1b1b1b"), 7.0, true)
 
-    # Blinking eyes.
     if _eyes_open:
         draw_circle(Vector2(493, 82), 7.5, Color("111111"))
         draw_circle(Vector2(495, 79), 2.0, Color("ffffff"))
@@ -118,12 +113,10 @@ func _draw() -> void:
         draw_line(Vector2(485, 83), Vector2(501, 83), Color("111111"), 4.0, true)
         draw_line(Vector2(518, 82), Vector2(534, 82), Color("111111"), 4.0, true)
 
-    # Nostrils and smile.
     draw_circle(Vector2(557, 108), 3.5, Color("55504e"))
     draw_circle(Vector2(575, 111), 3.5, Color("55504e"))
     draw_arc(Vector2(557, 119), 14.0, 0.15, 1.45, 16, Color("6b5757"), 2.5, true)
 
-    # Prototype clothing overlays. These are deliberately not final design choices.
     if outfit_index == 1:
         draw_colored_polygon(PackedVector2Array([
             Vector2(215, 120), Vector2(388, 110), Vector2(430, 190), Vector2(235, 210)
@@ -144,9 +137,8 @@ func _draw() -> void:
         ]), Color("75bdd7"))
         draw_circle(Vector2(451, 138), 7.0, Color("fff3a8"))
 
-    # Unicorn costume accessories.
     if unicorn_costume and horn_style != "none":
-        var horn_color := Color("f4d36b") if horn_style == "horn" else Color("f18ac5")
+        var horn_color: Color = Color("f4d36b") if horn_style == "horn" else Color("f18ac5")
         draw_colored_polygon(PackedVector2Array([
             Vector2(510, 44), Vector2(525, -2), Vector2(532, 48)
         ]), horn_color)
