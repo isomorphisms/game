@@ -81,14 +81,14 @@ jobs:
           set -euxo pipefail
           mkdir -p dist
           godot --headless --path . --editor --quit
-          godot --headless --path . --export-release Android dist/dress-the-unicorn-salon-preview-v0.1.0.apk
-          test -s dist/dress-the-unicorn-salon-preview-v0.1.0.apk
+          godot --headless --path . --export-release Android dist/dress-the-unicorn-salon-preview-v0.2.0.apk
+          test -s dist/dress-the-unicorn-salon-preview-v0.2.0.apk
 
       - name: Save APK as workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: dress-the-unicorn-salon-preview-v0.1.0
-          path: dist/dress-the-unicorn-salon-preview-v0.1.0.apk
+          name: dress-the-unicorn-salon-preview-v0.2.0
+          path: dist/dress-the-unicorn-salon-preview-v0.2.0.apk
 
       - name: Publish preview release
         env:
@@ -96,10 +96,10 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
-          TAG=salon-preview-v0.1.0
-          APK=dist/dress-the-unicorn-salon-preview-v0.1.0.apk
+          TAG=salon-preview-v0.2.0
+          APK=dist/dress-the-unicorn-salon-preview-v0.2.0.apk
           gh release create "$TAG" "$APK" \
             --target "$GITHUB_SHA" \
             --prerelease \
-            --title "Dress the Unicorn — salon preview v0.1.0" \
-            --notes "First playable Godot salon preview. Choose the zebra, watch it blink, tap Dress up, and switch between two explicitly temporary prototype outfits. Zebra unicorn costume, wings, horn controls, snacks/drinks, and photo flow remain available."
+            --title "Dress the Unicorn — graphical salon preview v0.2.0" \
+            --notes "Graphical salon preview: the waiting room now shows all four animals, zebra/horse/both unicorns render throughout the salon, dresses cover the character body, outfit/hair/makeup/accessory choices have pictures, the snack-and-drink shop has illustrated items, and the photo room is visual. Text-only state is retained only behind the disabled DEBUG_UI flag."
