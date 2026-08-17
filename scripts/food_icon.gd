@@ -14,7 +14,7 @@ func configure(new_item: String) -> void:
 
 func _draw() -> void:
     var base := Vector2(120.0, 80.0)
-    var scale_factor := min(size.x / base.x, size.y / base.y)
+    var scale_factor: float = min(size.x / base.x, size.y / base.y)
     if scale_factor <= 0.0:
         scale_factor = 1.0
     var offset := Vector2((size.x - base.x * scale_factor) * 0.5, (size.y - base.y * scale_factor) * 0.5)
