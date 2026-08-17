@@ -26,9 +26,10 @@ jobs:
           unzip -q /tmp/godot.zip -d /tmp/godot
           install -m 0755 "/tmp/godot/Godot_v${RELEASE}_linux.x86_64" /usr/local/bin/godot
           godot --version
-      - name: Parse project and script
+      - name: Parse project and scripts
         shell: bash
         run: |
           set -euxo pipefail
           godot --headless --path . --editor --quit
+          godot --headless --path . --check-only --script scripts/zebra_view.gd
           godot --headless --path . --check-only --script scripts/main.gd
