@@ -1,5 +1,7 @@
 extends Control
 
+const ZebraView = preload("res://scripts/zebra_view.gd")
+
 const DRINKS := [
     "Lemonade",
     "Pink lemonade",
@@ -38,6 +40,7 @@ const SNACKS := [
 var animal := ""
 var animal_kind := ""
 var zebra_as_unicorn := false
+var zebra_outfit := 0
 var wearing_wings := false
 var horn_style := "none"
 var look_messy := false
@@ -119,10 +122,16 @@ func _status(text: String = "") -> void:
     status_label.add_theme_color_override("font_color", Color("704070"))
     content.add_child(status_label)
 
+func _add_zebra_preview() -> void:
+    var preview = ZebraView.new()
+    preview.configure(zebra_outfit, zebra_as_unicorn, wearing_wings, horn_style, look_messy)
+    content.add_child(preview)
+
 func _show_waiting_room() -> void:
     animal = ""
     animal_kind = ""
     zebra_as_unicorn = false
+    zebra_outfit = 0
     wearing_wings = false
     horn_style = "none"
     look_messy = false
@@ -145,7 +154,8 @@ func _show_salon() -> void:
     if animal_kind == "unicorn":
         _note("A unicorn can get messed up while doing something relaxing, then you can redo the look.")
     elif animal_kind == "zebra":
-        _note("The zebra can dress up as a unicorn. Relaxing does not mess up the zebra.")
+        _note("The zebra blinks on its own. Tap Dress up to put prototype outfits on it.")
+        _add_zebra_preview()
     else:
         _note("The horse is a regular dress-up customer.")
 
@@ -164,6 +174,12 @@ func _show_dress_up() -> void:
     _note("Hairstyle and makeup choices are still for the game designer to decide.")
 
     if animal_kind == "zebra":
+        _add_zebra_preview()
+        _heading("Prototype outfits")
+        _note("These two drawn outfits only prove the tap-to-dress interaction. They are not final outfit choices.")
+        _button("No outfit", _set_zebra_outfit.bind(0))
+        _button("Prototype outfit 1", _set_zebra_outfit.bind(1))
+        _button("Prototype outfit 2", _set_zebra_outfit.bind(2))
         _button("Dress as a unicorn: %s" % _on_off(zebra_as_unicorn), _toggle_zebra_costume)
 
     if _can_use_unicorn_accessories():
@@ -174,6 +190,10 @@ func _show_dress_up() -> void:
 
     _button("Done", _show_salon)
     _status(_appearance_text())
+
+func _set_zebra_outfit(index: int) -> void:
+    zebra_outfit = index
+    _show_dress_up()
 
 func _on_off(value: bool) -> String:
     return "on" if value else "off"
@@ -240,6 +260,8 @@ func _show_photo_room() -> void:
     _clear_screen()
     _title("Photo time")
     _note("%s is ready for a picture." % animal)
+    if animal_kind == "zebra":
+        _add_zebra_preview()
     if look_messy:
         _note("This unicorn is still messy from relaxing.")
     _note(_appearance_text())
@@ -271,6 +293,8 @@ func _appearance_text() -> String:
     else:
         text += " is dressed up"
 
+    if animal_kind == "zebra" and zebra_outfit > 0:
+        text += " in prototype outfit %d" % zebra_outfit
     if wearing_wings:
         text += " with wings"
     if horn_style != "none":
