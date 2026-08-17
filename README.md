@@ -2,20 +2,22 @@
 
 A tap-driven 2D animal salon game built with Godot 4.7.
 
-The game designer's decisions live in `GAME_IDEA.md`. The Godot project is now a small playable structure around those decisions; placeholder controls are used until the final animal, salon, clothing, hairstyle, makeup, food, animation, and sound art is made.
+The game designer's decisions live in `GAME_IDEA.md` and `GAME_SPEC.md`. The player-facing build is now graphical rather than a text rendering of internal state. A disabled `DEBUG_UI` flag in `scripts/main.gd` keeps the old kind of state summary available for debugging.
 
-## Current prototype
+## Current graphical prototype
 
-- Waiting room with a zebra, horse, and two unicorns.
-- Only one animal enters the salon at a time.
+- Illustrated waiting room with a zebra, horse, and two visibly different unicorns.
+- The selected animal remains on screen throughout the salon, dress-up, snack, and photo flows.
+- Original in-project vector drawing code for animals, rooms, action icons, clothing, food, and drinks; no PBS KIDS artwork is copied or redistributed.
 - Tap controls only; no drag interactions.
-- Zebra can dress as a unicorn.
-- Unicorn wings, regular horn, and rainbow horn placeholders.
-- Unicorns can get messed up by an intentionally unspecified relaxing activity and be redone.
-- Full current snack and drink list from `GAME_IDEA.md`.
-- End-of-session photo capture to the app's storage.
+- Three fitted clothing looks plus no-outfit; the dresses are layered over and cover the torso/body instead of floating beside it.
+- Three visible hair treatments and three visible makeup treatments as provisional art choices.
+- Zebra unicorn costume, wings, gold horn, and rainbow horn graphics.
+- Unicorns visibly become messy when they relax and can be redone.
+- Every currently specified snack and drink has an illustrated tappable card.
+- Visual photo room with end-of-session screenshot capture to app storage.
 
-Hairstyles, makeup, and the exact relaxing activity remain undecided, so the prototype does not invent them.
+The precise final hairstyles, makeup set, and relaxing activity remain open design questions. The current drawings make those parts testable without pretending the provisional art choices are settled rules.
 
 ## Run locally
 
@@ -27,17 +29,19 @@ godot --path .
 
 Or open `project.godot` in the Godot editor and press Run.
 
-## Android releases
+## Android previews
 
-Publishing a GitHub release triggers the Android build workflow. It uses Godot 4.7.1 and attaches `dress-the-unicorn-<tag>.apk` to the release.
-
-The Android package remains `org.isomorphisms.game.dev` and uses the existing family/testing signing key so development builds can update one another. That key is public and is not for a future Play Store release.
+The `animal-salon` branch has a preview workflow that can build and publish a signed development APK. Development builds use package `org.isomorphisms.game.dev` and the existing family/testing signing key so one preview can update another. That key is public and is not suitable for a future Play Store release.
 
 ## Project layout
 
 - `GAME_IDEA.md` — game designer's decisions and open questions
+- `GAME_SPEC.md` — settled rules, unanswered questions, and first-playable scope
 - `project.godot` — Godot project configuration
 - `scenes/main.tscn` — main scene
-- `scripts/main.gd` — current tap-driven prototype
+- `scripts/main.gd` — tap flow and internal state
+- `scripts/animal_view.gd` — zebra, horse, unicorn, outfits, hair, makeup, wings, horns, blinking, and messy-look drawing
+- `scripts/scene_art.gd` — waiting room, salon, dressing room, snack shop, and photo-room backgrounds
+- `scripts/icon_view.gd` — visual action/choice icons
+- `scripts/food_icon.gd` — illustrated snack and drink cards
 - `export_presets.cfg` — Android export preset
-- `assets/` — future art, sounds, fonts, and other game data
