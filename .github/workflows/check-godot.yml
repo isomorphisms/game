@@ -31,5 +31,11 @@ jobs:
         run: |
           set -euxo pipefail
           godot --headless --path . --editor --quit
-          godot --headless --path . --check-only --script scripts/zebra_view.gd
-          godot --headless --path . --check-only --script scripts/main.gd
+          for script in \
+            scripts/animal_view.gd \
+            scripts/scene_art.gd \
+            scripts/icon_view.gd \
+            scripts/food_icon.gd \
+            scripts/main.gd; do
+            godot --headless --path . --check-only --script "$script"
+          done
