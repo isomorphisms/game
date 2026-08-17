@@ -1,24 +1,41 @@
-# Animal Salon
-
-The title is provisional. The game designer can rename it later.
+# Dress the Unicorn
 
 ## The game idea
 
-You are a hairstylist who gives makeovers to zebras, horses, and two unicorns. You choose things that make them look good, including beautiful hairstyles, makeup, cute little wings, and rainbow horns. When a hairstyle and makeover are finished, you can also give the animal a drink and a snack.
+You are a hairstylist who gives makeovers to zebras, horses, and two unicorns. The animals wait in a waiting room, and you choose which animal comes into the salon. Only one animal can be in the salon at a time.
+
+You tap choices to give the animal a hairstyle, makeup, and other dress-up items. Unicorns can have wings and horns, including rainbow horns. Zebras can dress up as unicorns. The unicorns can get messed up while they are doing something relaxing, and then you have to redo them. The zebras just get to dress up.
+
+When you are finished, you can take photos of the animals you did. There is also a drink and snack shop.
 
 ## Already decided
 
+- The game is called **Dress the Unicorn**.
 - The player is a hairstylist.
 - The customers include zebras, horses, and two unicorns.
-- The player can choose hairstyles and makeover items.
-- Possible choices include beautiful hair, makeup, cute wings, and rainbow horns.
-- A finished animal can receive a drink and a snack.
+- The player chooses an animal from the waiting room.
+- Only one animal is in the salon at a time.
+- Choices are made by tapping, not dragging.
+- The player can choose hairstyles, makeup, and dress-up items.
+- Wings and horns are for unicorns.
+- Zebras can dress up as unicorns.
+- Unicorns can get messed up while doing something relaxing, and the player has to redo them.
+- Zebras just get to dress up.
+- At the end, the player can take photos of the animals they styled.
 
-## Still for the game designer to decide
+## Drinks
 
-- Do animals arrive one at a time, or can the player choose any animal?
-- Are items added by tapping them, dragging them onto the animal, or both?
-- Can zebras and horses wear wings and horns too, or are those only for unicorns?
-- Is this free play, or does each animal ask for a particular style?
-- What drinks and snacks should be available?
-- What tells the player that one makeover is finished?
+- Lemonade
+- Pink lemonade
+- Milk
+- Milkshake
+- Strawberry milkshake
+- Coconut water
+- Pineapple juice
+
+## Still for the game designer to decide later
+
+- What snacks should be in the shop?
+- What kinds of hairstyles and makeup should be available first?
+- What relaxing thing are the unicorns doing when they get messed up?
+- Do the horses have any special dress-up rules?
