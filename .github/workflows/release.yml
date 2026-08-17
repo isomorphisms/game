@@ -1,8 +1,11 @@
-name: Build release
+name: Build Android APK
 
 on:
+  push:
+    branches: [animal-salon]
   release:
     types: [published]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -12,10 +15,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out released game
+      - name: Check out game
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.release.tag_name }}
 
       - name: Set up Java 17
         uses: actions/setup-java@v4
@@ -80,19 +81,28 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
-          TAG_NAME='${{ github.event.release.tag_name }}'
-          SAFE_TAG="${TAG_NAME//\//-}"
+          if [[ "$GITHUB_EVENT_NAME" == "release" ]]; then
+            VERSION_NAME='${{ github.event.release.tag_name }}'
+          else
+            VERSION_NAME="build-${GITHUB_RUN_NUMBER}"
+          fi
           sed -i "s|^version/code=.*|version/code=${GITHUB_RUN_NUMBER}|" export_presets.cfg
-          sed -i "s|^version/name=.*|version/name=\"${TAG_NAME}\"|" export_presets.cfg
+          sed -i "s|^version/name=.*|version/name=\"${VERSION_NAME}\"|" export_presets.cfg
           mkdir -p dist
-          godot --headless --path . --export-release Android "dist/dress-the-unicorn-${SAFE_TAG}.apk"
+          godot --headless --path . --export-release Android "dist/zebra-salon.apk"
 
-      - name: Attach Android APK
+      - name: Save APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: zebra-salon-apk
+          path: dist/zebra-salon.apk
+          if-no-files-found: error
+
+      - name: Attach APK to GitHub Release
+        if: github.event_name == 'release'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
           set -euxo pipefail
-          TAG_NAME='${{ github.event.release.tag_name }}'
-          SAFE_TAG="${TAG_NAME//\//-}"
-          gh release upload "$TAG_NAME" "dist/dress-the-unicorn-${SAFE_TAG}.apk" --clobber
+          gh release upload '${{ github.event.release.tag_name }}' dist/zebra-salon.apk --clobber
