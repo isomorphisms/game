@@ -33,9 +33,33 @@ When you are finished, you can take photos of the animals you did. There is also
 - Strawberry milkshake
 - Coconut water
 - Pineapple juice
+- Banana smoothie
+- Blueberry smoothie
+- Strawberry smoothie
+- Pineapple smoothie
+
+## Snacks
+
+- Croissants
+- Buns
+- Tomatoes
+- Cookies
+- Cucumbers
+- Ground cherries
+- Carrots
+- Mango
+- Chips
+- Chickpeas
+- Soup
+- Guacamole and chips
+- Gummy eyeballs
+- Gummies
+- Candy
+- Lollipops
+- Gushers
+- Jolly Ranchers
 
 ## Still for the game designer to decide later
 
-- What snacks should be in the shop?
 - What kinds of hairstyles and makeup should be available first?
 - What relaxing thing are the unicorns doing when they get messed up?
