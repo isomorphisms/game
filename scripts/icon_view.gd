@@ -14,7 +14,7 @@ func configure(new_icon_id: String) -> void:
 
 func _draw() -> void:
     var base := Vector2(140.0, 90.0)
-    var scale_factor := min(size.x / base.x, size.y / base.y)
+    var scale_factor: float = min(size.x / base.x, size.y / base.y)
     if scale_factor <= 0.0:
         scale_factor = 1.0
     var offset := Vector2((size.x - base.x * scale_factor) * 0.5, (size.y - base.y * scale_factor) * 0.5)
@@ -44,11 +44,11 @@ func _draw() -> void:
         "hair3":
             _hair_icon(3)
         "makeup1":
-            _makeup_icon(1)
+            _makeup_icon(0)
         "makeup2":
-            _makeup_icon(2)
+            _makeup_icon(1)
         "makeup3":
-            _makeup_icon(3)
+            _makeup_icon(2)
         "unicorn":
             _unicorn_icon()
         "done":
@@ -134,7 +134,6 @@ func _makeup_icon(style: int) -> void:
     elif style == 2:
         draw_arc(Vector2(59, 43), 8.0, PI, TAU, 12, Color("9270d4"), 4.0, true)
         draw_arc(Vector2(81, 43), 8.0, PI, TAU, 12, Color("9270d4"), 4.0, true)
-    else:
         _star(Vector2(92, 58), 7.0, Color("f2a0c3"))
 
 func _unicorn_icon() -> void:
