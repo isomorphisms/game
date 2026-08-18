@@ -81,14 +81,14 @@ jobs:
           set -euxo pipefail
           mkdir -p dist
           godot --headless --path . --editor --quit
-          godot --headless --path . --export-release Android dist/dress-the-unicorn-salon-preview-v0.2.1.apk
-          test -s dist/dress-the-unicorn-salon-preview-v0.2.1.apk
+          godot --headless --path . --export-release Android dist/dress-the-unicorn-salon-preview-v0.2.2.apk
+          test -s dist/dress-the-unicorn-salon-preview-v0.2.2.apk
 
       - name: Save APK as workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: dress-the-unicorn-salon-preview-v0.2.1
-          path: dist/dress-the-unicorn-salon-preview-v0.2.1.apk
+          name: dress-the-unicorn-salon-preview-v0.2.2
+          path: dist/dress-the-unicorn-salon-preview-v0.2.2.apk
 
       - name: Record workflow run for direct APK delivery
         shell: bash
@@ -107,10 +107,10 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
-          TAG=salon-preview-v0.2.1
-          APK=dist/dress-the-unicorn-salon-preview-v0.2.1.apk
+          TAG=salon-preview-v0.2.2
+          APK=dist/dress-the-unicorn-salon-preview-v0.2.2.apk
           gh release create "$TAG" "$APK" \
             --target "$GITHUB_SHA" \
             --prerelease \
-            --title "Dress the Unicorn — graphical salon preview v0.2.1" \
-            --notes "Checked graphical salon preview: all four waiting-room animals render, zebra/horse/both unicorns remain visible throughout the salon, dresses cover the body, outfit/hair/makeup/accessory choices use pictures, the full snack-and-drink menu is illustrated, and the photo room is visual. Text-only state remains available only behind the disabled DEBUG_UI flag."
+            --title "Dress the Unicorn — touch/navigation preview v0.2.2" \
+            --notes "Touch/navigation revision: tapping the pictures performs the same actions as tapping their labels, interior screens have a large star back control, and every screen has a clear exit control. The graphical salon content from v0.2.1 remains intact."
