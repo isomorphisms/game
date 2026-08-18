@@ -109,8 +109,12 @@ jobs:
           set -euxo pipefail
           TAG=salon-preview-v0.2.3
           APK=dist/dress-the-unicorn-salon-preview-v0.2.3.apk
-          gh release create "$TAG" "$APK" \
-            --target "$GITHUB_SHA" \
-            --prerelease \
-            --title "Dress the Unicorn — scroll/wings preview v0.2.3" \
-            --notes "Scrolling revision: swipes that begin on tappable pictures now remain scroll gestures, large up/down controls make long choice lists easier to navigate, and the wings are larger with stronger color and outlines. Existing back, exit, picture-tap, and salon state behavior remains intact."
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$APK" --clobber
+          else
+            gh release create "$TAG" "$APK" \
+              --target "$GITHUB_SHA" \
+              --prerelease \
+              --title "Dress the Unicorn — scroll/wings preview v0.2.3" \
+              --notes "Scrolling revision: swipes that begin on tappable pictures now remain scroll gestures, large up/down controls make long choice lists easier to navigate, and the wings are larger with stronger color and outlines. Existing back, exit, picture-tap, and salon state behavior remains intact."
+          fi
