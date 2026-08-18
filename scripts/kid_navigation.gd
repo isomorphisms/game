@@ -5,11 +5,15 @@ const TAPPABLE_PICTURE_SCRIPTS := [
     "res://scripts/icon_view.gd",
     "res://scripts/food_icon.gd",
 ]
+const TAP_SLOP := 28.0
 
 var nav_layer: CanvasLayer
 var back_button: Button
 var exit_button: Button
 var current_room := "waiting"
+var picture_press_button: Button
+var picture_press_point := Vector2.ZERO
+var picture_press_cancelled := false
 
 func _ready() -> void:
     process_mode = Node.PROCESS_MODE_ALWAYS
@@ -19,18 +23,47 @@ func _process(_delta: float) -> void:
     _sync_navigation()
 
 func _input(event: InputEvent) -> void:
-    var pressed := false
-    var point := Vector2.ZERO
+    if event.device == InputEvent.DEVICE_ID_EMULATION:
+        return
 
     if event is InputEventScreenTouch:
-        pressed = event.pressed
-        point = event.position
-    elif event is InputEventMouseButton:
-        pressed = event.pressed and event.button_index == MOUSE_BUTTON_LEFT
-        point = event.position
+        _handle_picture_pointer(event.pressed, event.position)
+    elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+        _handle_picture_pointer(event.pressed, event.position)
+    elif event is InputEventScreenDrag:
+        _track_picture_pointer(event.position)
+    elif event is InputEventMouseMotion and picture_press_button != null:
+        _track_picture_pointer(event.position)
 
-    if pressed and _tap_picture_at(point):
-        get_viewport().set_input_as_handled()
+func _handle_picture_pointer(pressed: bool, point: Vector2) -> void:
+    if pressed:
+        picture_press_button = _find_picture_button(get_tree().root, point)
+        picture_press_point = point
+        picture_press_cancelled = false
+        return
+
+    var pressed_button := picture_press_button
+    var should_activate := (
+        pressed_button != null
+        and not picture_press_cancelled
+        and is_instance_valid(pressed_button)
+        and _find_picture_button(get_tree().root, point) == pressed_button
+    )
+    _reset_picture_pointer()
+
+    if should_activate:
+        pressed_button.call_deferred("emit_signal", "pressed")
+
+func _track_picture_pointer(point: Vector2) -> void:
+    if picture_press_button == null:
+        return
+    if point.distance_to(picture_press_point) > TAP_SLOP:
+        picture_press_cancelled = true
+
+func _reset_picture_pointer() -> void:
+    picture_press_button = null
+    picture_press_point = Vector2.ZERO
+    picture_press_cancelled = false
 
 func _build_navigation() -> void:
     nav_layer = CanvasLayer.new()
@@ -86,13 +119,6 @@ func _go_back() -> void:
 
 func _exit_game() -> void:
     get_tree().quit()
-
-func _tap_picture_at(point: Vector2) -> bool:
-    var button := _find_picture_button(get_tree().root, point)
-    if button == null:
-        return false
-    button.call_deferred("emit_signal", "pressed")
-    return true
 
 func _find_picture_button(node: Node, point: Vector2) -> Button:
     var children := node.get_children()
