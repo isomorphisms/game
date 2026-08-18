@@ -185,7 +185,7 @@ func _find_picture_button(node: Node, point: Vector2) -> Button:
     if not control.is_visible_in_tree() or not control.get_global_rect().has_point(point):
         return null
 
-    var script := control.get_script()
+    var script: Script = control.get_script() as Script
     if script == null or not (script.resource_path in TAPPABLE_PICTURE_SCRIPTS):
         return null
 
@@ -215,7 +215,7 @@ func _find_scroll_container(node: Node) -> ScrollContainer:
     return null
 
 func _find_node_with_script(node: Node, script_path: String) -> Node:
-    var script := node.get_script()
+    var script: Script = node.get_script() as Script
     if script != null and script.resource_path == script_path:
         return node
 
