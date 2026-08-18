@@ -2,7 +2,7 @@ extends "res://scripts/animal_view_base.gd"
 
 const FoodIcon = preload("res://scripts/food_icon.gd")
 
-var _held_food_icon: Control
+var _held_food_icon
 
 func _ready() -> void:
     super()
