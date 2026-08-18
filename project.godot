@@ -6,6 +6,7 @@ config_version=5
 [application]
 config/name="Dress the Unicorn"
 run/main_scene="res://scenes/main.tscn"
+config/icon="res://assets/icon.svg"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 
 [autoload]
