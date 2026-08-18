@@ -6,10 +6,13 @@ const TAPPABLE_PICTURE_SCRIPTS := [
     "res://scripts/food_icon.gd",
 ]
 const TAP_SLOP := 28.0
+const SCROLL_STEP := 320
 
 var nav_layer: CanvasLayer
 var back_button: Button
 var exit_button: Button
+var scroll_up_button: Button
+var scroll_down_button: Button
 var current_room := "waiting"
 var picture_press_button: Button
 var picture_press_point := Vector2.ZERO
@@ -92,6 +95,32 @@ func _build_navigation() -> void:
     exit_button.pressed.connect(_exit_game)
     nav_layer.add_child(exit_button)
 
+    scroll_up_button = Button.new()
+    scroll_up_button.text = "▲"
+    scroll_up_button.anchor_left = 1.0
+    scroll_up_button.anchor_right = 1.0
+    scroll_up_button.offset_left = -118.0
+    scroll_up_button.offset_right = -18.0
+    scroll_up_button.offset_top = 220.0
+    scroll_up_button.offset_bottom = 308.0
+    scroll_up_button.add_theme_font_size_override("font_size", 42)
+    scroll_up_button.tooltip_text = "Scroll up"
+    scroll_up_button.pressed.connect(_scroll_by.bind(-SCROLL_STEP))
+    nav_layer.add_child(scroll_up_button)
+
+    scroll_down_button = Button.new()
+    scroll_down_button.text = "▼"
+    scroll_down_button.anchor_left = 1.0
+    scroll_down_button.anchor_right = 1.0
+    scroll_down_button.offset_left = -118.0
+    scroll_down_button.offset_right = -18.0
+    scroll_down_button.offset_top = 322.0
+    scroll_down_button.offset_bottom = 410.0
+    scroll_down_button.add_theme_font_size_override("font_size", 42)
+    scroll_down_button.tooltip_text = "Scroll down"
+    scroll_down_button.pressed.connect(_scroll_by.bind(SCROLL_STEP))
+    nav_layer.add_child(scroll_down_button)
+
     _sync_navigation()
 
 func _sync_navigation() -> void:
@@ -103,6 +132,20 @@ func _sync_navigation() -> void:
         current_room = str(art.get("room"))
 
     back_button.visible = current_room != "waiting"
+
+    var scroll := _find_scroll_container(get_tree().root)
+    var can_scroll := false
+    var max_scroll := 0.0
+    if scroll != null:
+        var bar := scroll.get_v_scroll_bar()
+        max_scroll = max(0.0, bar.max_value - bar.page)
+        can_scroll = max_scroll > 1.0
+
+    scroll_up_button.visible = can_scroll
+    scroll_down_button.visible = can_scroll
+    if can_scroll:
+        scroll_up_button.disabled = scroll.scroll_vertical <= 0
+        scroll_down_button.disabled = float(scroll.scroll_vertical) >= max_scroll - 1.0
 
 func _go_back() -> void:
     var main := _find_node_with_script(get_tree().root, "res://scripts/main.gd")
@@ -119,6 +162,14 @@ func _go_back() -> void:
 
 func _exit_game() -> void:
     get_tree().quit()
+
+func _scroll_by(amount: int) -> void:
+    var scroll := _find_scroll_container(get_tree().root)
+    if scroll == null:
+        return
+    var bar := scroll.get_v_scroll_bar()
+    var max_scroll := int(max(0.0, bar.max_value - bar.page))
+    scroll.scroll_vertical = clampi(scroll.scroll_vertical + amount, 0, max_scroll)
 
 func _find_picture_button(node: Node, point: Vector2) -> Button:
     var children := node.get_children()
@@ -149,6 +200,17 @@ func _find_picture_button(node: Node, point: Vector2) -> Button:
     var next := parent.get_child(next_index)
     if next is Button and next.visible and not next.disabled:
         return next as Button
+
+    return null
+
+func _find_scroll_container(node: Node) -> ScrollContainer:
+    if node is ScrollContainer and node.is_visible_in_tree():
+        return node as ScrollContainer
+
+    for child in node.get_children():
+        var found := _find_scroll_container(child)
+        if found != null:
+            return found
 
     return null
 

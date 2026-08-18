@@ -141,19 +141,29 @@ func _mane_color() -> Color:
 
 func _draw_wings() -> void:
     var left := PackedVector2Array([
-        Vector2(177, 240), Vector2(95, 190), Vector2(68, 210), Vector2(126, 270),
-        Vector2(76, 286), Vector2(154, 322), Vector2(205, 290)
+        Vector2(194, 250), Vector2(145, 177), Vector2(78, 133), Vector2(93, 196),
+        Vector2(25, 183), Vector2(63, 241), Vector2(18, 277), Vector2(92, 283),
+        Vector2(47, 337), Vector2(139, 315), Vector2(202, 294)
     ])
     var right := PackedVector2Array([
-        Vector2(323, 240), Vector2(405, 190), Vector2(432, 210), Vector2(374, 270),
-        Vector2(424, 286), Vector2(346, 322), Vector2(295, 290)
+        Vector2(306, 250), Vector2(355, 177), Vector2(422, 133), Vector2(407, 196),
+        Vector2(475, 183), Vector2(437, 241), Vector2(482, 277), Vector2(408, 283),
+        Vector2(453, 337), Vector2(361, 315), Vector2(298, 294)
     ])
-    draw_colored_polygon(left, Color("e6d9ff"))
-    draw_colored_polygon(right, Color("d8f1ff"))
-    draw_polyline(left, Color("9778b8"), 4.0, true)
-    draw_polyline(right, Color("789fb8"), 4.0, true)
-    draw_line(Vector2(112, 225), Vector2(175, 273), Color("b7a0d3"), 3.0, true)
-    draw_line(Vector2(388, 225), Vector2(325, 273), Color("9fc5d7"), 3.0, true)
+    var left_outline := Color("70429a")
+    var right_outline := Color("2e789b")
+    draw_colored_polygon(left, Color("d6adff"))
+    draw_colored_polygon(right, Color("9cddff"))
+    draw_polyline(left, left_outline, 7.0, true)
+    draw_polyline(right, right_outline, 7.0, true)
+    draw_line(left[left.size() - 1], left[0], left_outline, 7.0, true)
+    draw_line(right[right.size() - 1], right[0], right_outline, 7.0, true)
+    draw_line(Vector2(153, 205), Vector2(78, 154), Color("fff3ff"), 8.0, true)
+    draw_line(Vector2(160, 241), Vector2(48, 218), Color("f7eaff"), 7.0, true)
+    draw_line(Vector2(166, 274), Vector2(69, 316), Color("efe0ff"), 7.0, true)
+    draw_line(Vector2(347, 205), Vector2(422, 154), Color("f5fcff"), 8.0, true)
+    draw_line(Vector2(340, 241), Vector2(452, 218), Color("e9f8ff"), 7.0, true)
+    draw_line(Vector2(334, 274), Vector2(431, 316), Color("dff5ff"), 7.0, true)
 
 func _draw_tail(coat_shadow: Color, mane: Color, ink: Color) -> void:
     draw_line(Vector2(176, 284), Vector2(112, 332), coat_shadow, 22.0, true)
