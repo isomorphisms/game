@@ -8,6 +8,9 @@ config/name="Dress the Unicorn"
 run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 
+[autoload]
+KidNavigation="*res://scripts/kid_navigation.gd"
+
 [display]
 
 [display/window]
