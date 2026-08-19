@@ -1,5 +1,48 @@
 extends "res://scripts/animal_view_base.gd"
 
+const FoodIcon = preload("res://scripts/food_icon.gd")
+
+var _held_food_icon
+
+func _ready() -> void:
+    super()
+    _add_held_food()
+    resized.connect(_position_held_food)
+    call_deferred("_position_held_food")
+
+func _add_held_food() -> void:
+    var root := get_tree().current_scene
+    if root == null:
+        return
+    var held_item = root.get("last_food")
+    if typeof(held_item) != TYPE_STRING or held_item == "":
+        return
+
+    _held_food_icon = FoodIcon.new()
+    _held_food_icon.custom_minimum_size = Vector2(96, 64)
+    _held_food_icon.size = Vector2(96, 64)
+    _held_food_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    _held_food_icon.z_index = 20
+    _held_food_icon.configure(held_item)
+    add_child(_held_food_icon)
+    _position_held_food()
+
+func _position_held_food() -> void:
+    if _held_food_icon == null:
+        return
+
+    var base_size := Vector2(500.0, 500.0)
+    var scale_factor: float = min(size.x / base_size.x, size.y / base_size.y)
+    if scale_factor <= 0.0:
+        return
+    var offset := Vector2(
+        (size.x - base_size.x * scale_factor) * 0.5,
+        (size.y - base_size.y * scale_factor) * 0.5
+    )
+    var right_hand := offset + Vector2(392, 323) * scale_factor
+    _held_food_icon.size = Vector2(96, 64)
+    _held_food_icon.position = right_hand - Vector2(86, 58)
+
 # Keep the shared horse/unicorn renderer unchanged. The zebra gets the
 # rounder, fuller proportions used by the newer movie artwork.
 func _draw() -> void:
