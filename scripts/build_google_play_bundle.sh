@@ -132,8 +132,8 @@ GRADLE
     export GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD="$ANDROID_UPLOAD_KEY_PASSWORD"
 
     godot --headless --path "$source_directory" --editor --quit
-    godot --headless --path "$source_directory" --install-android-build-template --editor --quit
     godot --headless --path "$source_directory" \
+      --install-android-build-template \
       --export-release Android "$output_directory/dress-the-unicorn.aab"
     test -s "$output_directory/dress-the-unicorn.aab"
     ;;
